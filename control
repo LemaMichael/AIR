@@ -1,9 +1,9 @@
 Package: com.laughingquoll.siliqua
-Name: Siliqua
+Name: Airpods ++
 Depends: mobilesubstrate
 Version: 1.0
 Architecture: iphoneos-arm
-Description: AirPods Gestures and New Features
+Description: Modify AirPod controls
 Maintainer: LaughingQuoll
 Author: LaughingQuoll
 Section: Tweaks

@@ -125,6 +125,14 @@
 			<key>PostNotification</key>
 			<string>com.laughingquoll.siliquaprefs/changed</string>
 	</dict>
+	<dict>
+		<key>cell</key>
+		<string>PSButtonCell</string>
+		<key>action</key>
+		<string>respring</string>
+		<key>label</key>
+		<string>Apply Changes!</string>
+	</dict>
 	</array>
 	<key>title</key>
 	<string>Quadruple Tap Actions</string>

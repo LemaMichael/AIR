@@ -3,7 +3,7 @@
 #import "Preferences/PSListController.h"
 #import "Preferences/PSSpecifier.h"
 #import "Preferences/NSTask.h"
-
+#include <spawn.h>
 #import <notify.h>
 
 @interface QuadTapListController: PSListController
@@ -30,6 +30,13 @@
 
 
 	[super viewDidAppear:animated];
+}
+
+-(void)respring {
+	//: Updated for iOS 11.4
+	pid_t pid;
+	const char* args[] = {"killall", "backboardd", NULL};
+	posix_spawn(&pid, "/usr/bin/killall", NULL, NULL, (char* const*)args, NULL);
 }
 
 @end

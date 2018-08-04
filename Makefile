@@ -1,5 +1,4 @@
 include $(THEOS)/makefiles/common.mk
-export THEOS_DEVICE_IP=192.168.0.25 THEOS_DEVICE_PORT=22
 
 TWEAK_NAME = Siliqua
 Siliqua_FILES = Tweak.xm
