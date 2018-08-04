@@ -57,6 +57,38 @@
 			<key>label</key>
 			<string>Quadruple Tap Actions</string>
 	</dict>
+	<dict>
+		<key>cell</key>
+		<string>PSGroupCell</string>
+		<key>label</key>
+		<string>About the creator</string>
+	</dict>
+	<dict>
+		<key>cell</key>
+		<string>PSButtonCell</string>
+		<key>action</key>
+		<string>goToOriginalCode</string>
+		<key>label</key>
+		<string>Original source code</string>
+		<key>icon</key>
+		<string>github.png</string>
+	</dict>
+	<dict>
+		<key>cell</key>
+		<string>PSGroupCell</string>
+		<key>label</key>
+		<string>About Me</string>
+	</dict>
+	<dict>
+		<key>cell</key>
+		<string>PSButtonCell</string>
+		<key>action</key>
+		<string>goToModifiedCode</string>
+		<key>label</key>
+		<string>Modified source code</string>
+		<key>icon</key>
+		<string>github.png</string>
+	</dict>
 	</array>
 	<key>title</key>
 	<string>Airpods ++</string>

@@ -10,6 +10,14 @@
 	return _specifiers;
 }
 
+//: Button actions
+-(void)goToOriginalCode {
+	[[UIApplication sharedApplication] openURL: [NSURL URLWithString:@"https://github.com/LaughingQuoll/Siliqua"]];
+}
+
+-(void)goToModifiedCode {
+	[[UIApplication sharedApplication] openURL: [NSURL URLWithString: @"https://github.com/LemaMichael/AIR"]];
+}
 @end
 
 
@@ -96,8 +104,6 @@
 }
 
 -(CGFloat)preferredHeightForWidth:(CGFloat)arg1 {
-
-	//CGFloat prefHeight = 90.0;
 	CGFloat prefHeight = 110.0;
 	return prefHeight;
 }
