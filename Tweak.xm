@@ -208,12 +208,9 @@ static NSTimer *timer;
 
 %hook BluetoothManager
 /*
- NOTE this will not be called if LEFT and RIGHT are set to OFF
+ NOTE BOTH OF these methods this will not be called if LEFT and RIGHT are set to OFF
  but will be called if one earbud is set SIRI
 */
-- (void)_postNotificationWithArray:(id)arg1 { 
-  %log;
-  }
 //: PRints ou similiar things to postNotificationArray but this includes the mac address
 //: THIS DOES NOT GET CALLED WHEN USER DOUBLE TAPS. WE CAN IGNORE FOR NOW
 -(void)postNotificationName:(id)arg1 object:(id)arg2 {
@@ -225,12 +222,17 @@ static NSTimer *timer;
   //count = count + 1; // Alternatively written as count++;
   //HBLogDebug(@"THE CURRENT COUNT IS %i", count);
 }
+
+- (void)_postNotificationWithArray:(id)arg1 { 
+  //: MARK:- THIS IS NOT BEING CALLED ANYMORE NOW ALL OF A SUDDEN. NOT SURE WHY.
+  %log;
+  }
 %end
 
 %hook BluetoothDevice
 /*
 -(BOOL)supportsBatteryLevel {
-  //: Apple does not support battery level for the airpods, interesting....
+  //: Apple does not support battery level for the airpods HERE, interesting....
   BOOL val = %orig;
   HBLogDebug(@"supportsBatteryLevel? %d", val);
   return %orig;
@@ -267,7 +269,6 @@ if arg1 ==
 4: Previous Track
 
 arg2 == Right earbud
-
 */
 -(unsigned)doubleTapActionEx:(unsigned*)arg1 rightAction:(unsigned*)arg2 {
   unsigned int val = %orig;
@@ -297,7 +298,6 @@ arg2 == Right earbud
   HBLogDebug(@"doubleTapCapability RESULT %u", val);
   return val;
 }
-
 //: This decides whether the audio stops playing when user takes out airpods
 /*
 If this is off then arg1 == NO and the return value is NO 
@@ -309,7 +309,6 @@ If this is off then arg1 == NO and the return value is NO
   HBLogDebug(@"setInEarDetectEnabled ARGUEMENT1 %d", argVal);
   return val;
 }
-
 -(BOOL)inEarDetectEnabled {
   BOOL val = %orig;
   HBLogDebug(@"inEarDetectEnabled RESULT %d", val);
@@ -317,7 +316,7 @@ If this is off then arg1 == NO and the return value is NO
 }
 %end
 
-//: This prints out the battery percentage of all devices. Will need to find out how to only get battery device.
+//: This prints out the battery percentage of all devices. Will need to find out how to only get the airpod battery device.
 // %hook BCBatteryDevice
 // -(long long)percentCharge{
 //   %log;
@@ -326,9 +325,6 @@ If this is off then arg1 == NO and the return value is NO
 //   return val;
 // }
 // %end
-
-
-
 
 static void settingsChangedSiliqua(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo)
 {
