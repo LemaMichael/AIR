@@ -14,7 +14,7 @@
 @interface BluetoothDevice
 - (unsigned int)doubleTapAction;
 - (bool)setDoubleTapAction:(unsigned int)arg;
--(BOOL)magicPaired;
+- (BOOL)magicPaired;
 @end
 
 @interface MPMusicPlayerController
@@ -62,6 +62,9 @@ bool qtIncreaseVolume;
 bool qtDecreaseVolume;
 bool qtToggleSiri;
 
+static int count = 0;
+
+
 @interface SBAssistantController
 + (id)sharedInstance;
 - (void)handleSiriButtonUpEventFromSource:(int)arg1;
@@ -80,14 +83,17 @@ static NSTimer *timer;
     %orig;
     // Register for our double tap notification.
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(recivedDoubleTapNotificationFromAirPods:) name:@"com.laughingquoll.runairpodsdoubletappedaction" object:nil];
+    HBLogDebug(@"viewDidLoad has finished");
 }
 %new
 - (void)recivedDoubleTapNotificationFromAirPods:(NSNotification *)notification {
+    HBLogDebug(@"recivedDoubleTapNotificationFromAirPods METHOD CALLED");
     // Firstly check that the notification is in fact the double tap action.
     if ([[notification name] isEqualToString:@"com.laughingquoll.runairpodsdoubletappedaction"]) {
         // Credits to Finn Gaida who created quad tap for me :P
         if (justTapped) {
             // quad tap action
+            HBLogDebug(@"Quad tap ACTIVATED");
 
             if(qtPausePlay){
             MRMediaRemoteSendCommand(kMRTogglePlayPause, 0);
@@ -116,10 +122,13 @@ static NSTimer *timer;
             }
 
             if(qtIncreaseVolume){
+              HBLogDebug(@"INCREASE VOLUME ACTIVATED");
+
               [[%c(SBMediaController) sharedInstance] _changeVolumeBy:0.1];
             }
 
             if(qtDecreaseVolume){
+              HBLogDebug(@"DECREASE VOLUME ACTIVATED");
               [[%c(SBMediaController) sharedInstance] _changeVolumeBy:-0.1];
             }
 
@@ -137,6 +146,8 @@ static NSTimer *timer;
             [timer invalidate];
             justTapped = NO;
         } else {
+            HBLogDebug(@"Double tap ACTIVATED");
+
             justTapped = YES;
             timer = [NSTimer scheduledTimerWithTimeInterval:1 repeats:NO block:^(NSTimer * _Nonnull timer) {
 
@@ -191,52 +202,182 @@ static NSTimer *timer;
         }
     }
 }
-
 %end
 
 %hook BluetoothManager
-// This method is called for a multitude of purposes and we can get alot out of it.
-// It is called every double tap on the AirPods with the two strings in the array. That way we can tell it was infact a double tap.
-// By preventing %orig when the strings are present then we effectivly cut siri off.
+/*
+ NOTE this will not be called if LEFT and RIGHT are set to OFF
+ but will be called if one earbud is set SIRI
+*/
 - (void)_postNotificationWithArray:(id)arg1 {
+  //: BluetoothAvailabilityChangedNotification is called when phone first starts & when settings app is opened.
+  //: BluetoothDeviceUpdatedNotification is first called when double tapped
   %log;
-  //BluetoothDevice *device = [[NSClassFromString(@"BluetoothDevice") alloc] init];
-  //if([device isAppleAudioDevice]){
-
-    // This if statment could be just a if:elseif:else statement but that seemed to break it so the if:else:if:else will have to do.
-    if(Enabled){
-      NSString *stringOne = @"BluetoothHandsfreeInitiatedVoiceCommand";
-      NSString *stringTwo = @"BluetoothHandsfreeEndedVoiceCommand";
-      NSString *stringThree = @"BluetoothDeviceDisconnectSuccessNotification";
-      // Check for the first string.
-      if ( [arg1 containsObject:stringOne] ) {
-            [[NSNotificationCenter defaultCenter]
-             postNotificationName:@"com.laughingquoll.runairpodsdoubletappedaction"
-             object:self];
-      } else {
-        // Check for the second string.
-        if ( [arg1 containsObject:stringTwo] ) {
-            [[NSNotificationCenter defaultCenter]
-             postNotificationName:@"com.laughingquoll.runairpodsdoubletappedaction"
-             object:self];
-        // It wasn't any of the two strings so we just allow it to do whatever.
-        } else {
-            // Unfinished feature, add an action when AirPods become connected.
-            if([arg1 containsObject:stringThree] ) {
-              NSLog(@"AirPods just became connected");
-            }
-            return %orig;
-        }
-      }
-    } else {
-      %orig;
-    }
-  //} else {
-  //  %orig;
-  //}
+  count = count + 1; // Alternatively written as count++;
+  HBLogDebug(@"THE CURRENT COUNT IS %i", count);
+  HBLogDebug(@"ARG1 is an array and contains:");
+  for (id item in arg1) {
+    //RESULT: ARG1 contains BluetoothHandsfreeInitiatedVoiceCommand and the device name.
+    HBLogDebug(@"%@\n", item);
+  }
+  HBLogDebug(@"");
 }
 
+//: PRINT OUT 2, im not sure what this means (DELETE)
+// -(int)powerState {
+//   // %log;
+//   // int result = %orig;
+//   // HBLogDebug(@"THE POWERSTATE IS %i", result);
+//   // return result;
+// }
+
+//: PRints ou similiar things to postNotificationArray but this includes the mac address
+//: THIS DOES NOT GET CALLED WHEN USER DOUBLE TAPS. WE CAN IGNORE FOR NOW
+///reeeeee
+-(void)postNotificationName:(id)arg1 object:(id)arg2 {
+  //: BluetoothAvailabilityChangedNotfication is called when settings app is tapped
+  //: BluetoothDeviceConnectSuccessNotification is called when airpods are connected
+  //: BluetoothDeviceDisconnectSuccessNotification "" when airpods are disconnected
+  %log;
+  count = count + 1; // Alternatively written as count++;
+  HBLogDebug(@"THE CURRENT COUNT IS %i", count);
+}
+
+// //: Not usefu;
+// -(void)postNotification:(id)arg1 {
+//   %log;
+// }
+
+// //: NOT SURE?
+// -(void)startVoiceCommand:(id)arg1 {
+//   %log;
+// }
+// //: NOT SURE?
+// -(void)bluetoothStateActionWithCompletion:(/*^block*/id)arg1 {
+//   %log;
+// }
+// //:not sure?
+// -(void)postNotificationName:(id)arg1 object:(id)arg2 error:(id)arg3 {
+//   %log;
+// }
+
+// //: nOT SURE
+// -(void)bluetoothStateAction{
+//   %log;
+// }
+// //: Prints out BluetoothStateChangedNotification, BluetoothBlacklistStateChangedNotification when device starts
+// -(void)_postNotification:(id)arg1 {
+//   %log;
+// }
+
+// //: NOT sure?
+// -(void)setBlacklistEnabled:(BOOL)arg1 {
+//   %log;
+// }
 %end
+
+// %hook MPAVRoute
+// -(BOOL)isAirpodsRoute{
+//   %log;
+//   BOOL val = %orig;
+//   return val;
+// }
+// %end
+
+
+%hook BluetoothDevice
+/*
+-(BOOL)supportsBatteryLevel {
+  //: Apple does not support battery level for the airpods, interesting....
+  BOOL val = %orig;
+  HBLogDebug(@"supportsBatteryLevel? %d", val);
+  return %orig;
+}*/
+
+//: This is called when the airpods are finally in your ears
+-(BOOL)isAppleAudioDevice{
+  BOOL val = %orig;
+  HBLogDebug(@"THIS IS BEING SHOWN AS an apple deivce connected? %d", val);
+  return %orig;
+}
+-(unsigned)doubleTapAction {
+  unsigned int val = %orig;
+  HBLogDebug(@"doubleTapAction RESULT %u", val);
+  return val;
+}
+
+-(BOOL)setDoubleTapAction:(unsigned)arg1 {
+  BOOL isSet = %orig;
+  HBLogDebug(@"is this set for doubleTapAction? %d", isSet);
+  unsigned int val = arg1;
+  HBLogDebug(@"setDoubleTapAction ARGUEMENT %u", val);
+  return isSet;
+}
+
+//: Prints out the current doubleTapactions
+/*
+arg1 == Left earbud
+if arg1 ==
+0: OFF
+1: SIRI
+2: Play/Pause
+3: Next Track
+4: Previous Track
+
+arg2 == Right earbud
+
+*/
+-(unsigned)doubleTapActionEx:(unsigned*)arg1 rightAction:(unsigned*)arg2 {
+  unsigned int val = %orig;
+  HBLogDebug(@"doubleTapActionEx RESULT %u", val);
+  unsigned int *argVal = arg1;
+  HBLogDebug(@"doubleTapActionEx ARGUEMENT1 %u", *argVal);
+  unsigned int *argVal2 = arg2;
+  HBLogDebug(@"doubleTapActionEx ARGUEMENT2 %u", *argVal2);
+  //: Returns a value of 0 when viewing Airpods viewController
+  return val;
+}
+
+//: HOLY grail, this is called when user selects a new option (such as Play/Pause)
+-(BOOL)setDoubleTapActionEx:(unsigned)arg1 rightAction:(unsigned)arg2 {
+  BOOL val = %orig;
+  HBLogDebug(@"setDoubleTapActionEx RESULT %d", val);
+  unsigned int argVal = arg1;
+  HBLogDebug(@"setDoubleTapActionEx ARGUEMENT1 %u", argVal);
+  unsigned int argVal2 = arg2;
+  HBLogDebug(@"setDoubleTapActionEx ARGUEMENT2 %u", argVal2);
+  //: Returns a one when a value is set
+  return val;
+}
+
+-(unsigned)doubleTapCapability {
+  unsigned int val = %orig;
+  HBLogDebug(@"doubleTapCapability RESULT %u", val);
+  return val;
+}
+
+//: This decides whether the audio stops playing when user takes out airpods
+/*
+If this is off then arg1 == NO and the return value is NO 
+*/
+-(BOOL)setInEarDetectEnabled:(BOOL)arg1 {
+  BOOL val = %orig;
+  HBLogDebug(@"setInEarDetectEnabled RESULT %d", val);
+  BOOL argVal = arg1;
+  HBLogDebug(@"setInEarDetectEnabled ARGUEMENT1 %d", argVal);
+  return val;
+}
+
+-(BOOL)inEarDetectEnabled {
+  BOOL val = %orig;
+  HBLogDebug(@"inEarDetectEnabled RESULT %d", val);
+  return val;
+}
+%end
+
+
+
+
 
 static void settingsChangedSiliqua(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo)
 {
