@@ -1,6 +1,6 @@
-#include "SiliquaPrefsRootListController.h"
+#include "AirRootListController.h"
 
-@implementation SiliquaPrefsRootListController
+@implementation AirRootListController
 
 - (NSArray *)specifiers {
 	if (!_specifiers) {

@@ -62,7 +62,7 @@ bool qtIncreaseVolume;
 bool qtDecreaseVolume;
 bool qtToggleSiri;
 
-static int count = 0;
+int count = 0;
 
 
 @interface SBAssistantController
@@ -85,6 +85,8 @@ static NSTimer *timer;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(recivedDoubleTapNotificationFromAirPods:) name:@"com.laughingquoll.runairpodsdoubletappedaction" object:nil];
     HBLogDebug(@"viewDidLoad has finished");
 }
+
+
 %new
 - (void)recivedDoubleTapNotificationFromAirPods:(NSNotification *)notification {
     HBLogDebug(@"recivedDoubleTapNotificationFromAirPods METHOD CALLED");
@@ -209,81 +211,21 @@ static NSTimer *timer;
  NOTE this will not be called if LEFT and RIGHT are set to OFF
  but will be called if one earbud is set SIRI
 */
-- (void)_postNotificationWithArray:(id)arg1 {
-  //: BluetoothAvailabilityChangedNotification is called when phone first starts & when settings app is opened.
-  //: BluetoothDeviceUpdatedNotification is first called when double tapped
+- (void)_postNotificationWithArray:(id)arg1 { 
   %log;
-  count = count + 1; // Alternatively written as count++;
-  HBLogDebug(@"THE CURRENT COUNT IS %i", count);
-  HBLogDebug(@"ARG1 is an array and contains:");
-  for (id item in arg1) {
-    //RESULT: ARG1 contains BluetoothHandsfreeInitiatedVoiceCommand and the device name.
-    HBLogDebug(@"%@\n", item);
   }
-  HBLogDebug(@"");
-}
-
-//: PRINT OUT 2, im not sure what this means (DELETE)
-// -(int)powerState {
-//   // %log;
-//   // int result = %orig;
-//   // HBLogDebug(@"THE POWERSTATE IS %i", result);
-//   // return result;
-// }
-
 //: PRints ou similiar things to postNotificationArray but this includes the mac address
 //: THIS DOES NOT GET CALLED WHEN USER DOUBLE TAPS. WE CAN IGNORE FOR NOW
-///reeeeee
 -(void)postNotificationName:(id)arg1 object:(id)arg2 {
   //: BluetoothAvailabilityChangedNotfication is called when settings app is tapped
   //: BluetoothDeviceConnectSuccessNotification is called when airpods are connected
   //: BluetoothDeviceDisconnectSuccessNotification "" when airpods are disconnected
+  //: BluetoothDiscoveryStateChangedNotification gets printed out outfit when in bluetooth page
   %log;
-  count = count + 1; // Alternatively written as count++;
-  HBLogDebug(@"THE CURRENT COUNT IS %i", count);
+  //count = count + 1; // Alternatively written as count++;
+  //HBLogDebug(@"THE CURRENT COUNT IS %i", count);
 }
-
-// //: Not usefu;
-// -(void)postNotification:(id)arg1 {
-//   %log;
-// }
-
-// //: NOT SURE?
-// -(void)startVoiceCommand:(id)arg1 {
-//   %log;
-// }
-// //: NOT SURE?
-// -(void)bluetoothStateActionWithCompletion:(/*^block*/id)arg1 {
-//   %log;
-// }
-// //:not sure?
-// -(void)postNotificationName:(id)arg1 object:(id)arg2 error:(id)arg3 {
-//   %log;
-// }
-
-// //: nOT SURE
-// -(void)bluetoothStateAction{
-//   %log;
-// }
-// //: Prints out BluetoothStateChangedNotification, BluetoothBlacklistStateChangedNotification when device starts
-// -(void)_postNotification:(id)arg1 {
-//   %log;
-// }
-
-// //: NOT sure?
-// -(void)setBlacklistEnabled:(BOOL)arg1 {
-//   %log;
-// }
 %end
-
-// %hook MPAVRoute
-// -(BOOL)isAirpodsRoute{
-//   %log;
-//   BOOL val = %orig;
-//   return val;
-// }
-// %end
-
 
 %hook BluetoothDevice
 /*
@@ -375,6 +317,15 @@ If this is off then arg1 == NO and the return value is NO
 }
 %end
 
+//: This prints out the battery percentage of all devices. Will need to find out how to only get battery device.
+// %hook BCBatteryDevice
+// -(long long)percentCharge{
+//   %log;
+//   long long val = %orig;
+//   HBLogDebug(@"It seems this is the battery level: %lli", val);
+//   return val;
+// }
+// %end
 
 
 

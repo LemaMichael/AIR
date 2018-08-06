@@ -5,9 +5,9 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>SilquaPrefs</string>
+	<string>AIR</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.laughingquoll.siliquaprefs</string>
+	<string>com.lema.air</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundlePackageType</key>
@@ -19,6 +19,6 @@
 	<key>CFBundleVersion</key>
 	<string>1.0</string>
 	<key>NSPrincipalClass</key>
-	<string>SiliquaPrefsRootListController</string>
+	<string>AirRootListController</string>
 </dict>
 </plist>

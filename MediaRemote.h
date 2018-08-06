@@ -1,5 +1,3 @@
-
-
 #ifndef MEDIAREMOTE_H_
 #define MEDIAREMOTE_H_
 

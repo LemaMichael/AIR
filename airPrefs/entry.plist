@@ -5,13 +5,13 @@
 	<key>entry</key>
 	<dict>
 		<key>bundle</key>
-		<string>SilquaPrefs</string>
+		<string>AIR</string>
 		<key>cell</key>
 		<string>PSLinkCell</string>
 		<key>detail</key>
-		<string>SiliquaPrefsRootListController</string>
+		<string>AirRootListController</string>
 		<key>icon</key>
-		<string>icon.png</string>
+		<string>Icon.png</string>
 		<key>isController</key>
 		<true/>
 		<key>label</key>

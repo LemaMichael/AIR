@@ -1,9 +1,9 @@
-Package: com.laughingquoll.siliqua
+Package: com.lema.air
 Name: Airpods ++
 Depends: mobilesubstrate
 Version: 1.0
 Architecture: iphoneos-arm
 Description: Modify AirPod controls
-Maintainer: LaughingQuoll
-Author: LaughingQuoll
+Maintainer: Lema
+Author: Lema
 Section: Tweaks
