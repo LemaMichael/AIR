@@ -206,6 +206,8 @@ static NSTimer *timer;
 }
 %end
 
+//: MARK: - BluetoothManager 
+
 %hook BluetoothManager
 /*
  NOTE BOTH OF these methods this will not be called if LEFT and RIGHT are set to OFF
@@ -226,38 +228,14 @@ static NSTimer *timer;
 - (void)_postNotificationWithArray:(id)arg1 { 
   //: MARK:- THIS IS NOT BEING CALLED ANYMORE NOW ALL OF A SUDDEN. NOT SURE WHY.
   %log;
+  HBLogDebug(@"YOU'VE SEEM TO CALL ME ALL OF A SUDDEN");
   }
 %end
 
+
+//: MARK: - BluetoothDevice 
+
 %hook BluetoothDevice
-/*
--(BOOL)supportsBatteryLevel {
-  //: Apple does not support battery level for the airpods HERE, interesting....
-  BOOL val = %orig;
-  HBLogDebug(@"supportsBatteryLevel? %d", val);
-  return %orig;
-}*/
-
-//: This is called when the airpods are finally in your ears
--(BOOL)isAppleAudioDevice{
-  BOOL val = %orig;
-  HBLogDebug(@"THIS IS BEING SHOWN AS an apple deivce connected? %d", val);
-  return %orig;
-}
--(unsigned)doubleTapAction {
-  unsigned int val = %orig;
-  HBLogDebug(@"doubleTapAction RESULT %u", val);
-  return val;
-}
-
--(BOOL)setDoubleTapAction:(unsigned)arg1 {
-  BOOL isSet = %orig;
-  HBLogDebug(@"is this set for doubleTapAction? %d", isSet);
-  unsigned int val = arg1;
-  HBLogDebug(@"setDoubleTapAction ARGUEMENT %u", val);
-  return isSet;
-}
-
 //: Prints out the current doubleTapactions
 /*
 arg1 == Left earbud
@@ -293,38 +271,25 @@ arg2 == Right earbud
   return val;
 }
 
--(unsigned)doubleTapCapability {
-  unsigned int val = %orig;
-  HBLogDebug(@"doubleTapCapability RESULT %u", val);
-  return val;
-}
-//: This decides whether the audio stops playing when user takes out airpods
+//: This is called when user opens cc or when user puts on/off airpods
+/*-(BOOL)isAppleAudioDevice{
+  BOOL val = %orig;
+  HBLogDebug(@"THIS IS BEING SHOWN AS an apple deivce connected? %d", val);
+  return %orig;
+}*/
+%end
+
 /*
-If this is off then arg1 == NO and the return value is NO 
-*/
--(BOOL)setInEarDetectEnabled:(BOOL)arg1 {
-  BOOL val = %orig;
-  HBLogDebug(@"setInEarDetectEnabled RESULT %d", val);
-  BOOL argVal = arg1;
-  HBLogDebug(@"setInEarDetectEnabled ARGUEMENT1 %d", argVal);
-  return val;
-}
--(BOOL)inEarDetectEnabled {
-  BOOL val = %orig;
-  HBLogDebug(@"inEarDetectEnabled RESULT %d", val);
+//: This prints out the battery percentage of all devices. Will need to find out how to only get the airpod battery device later.
+%hook BCBatteryDevice
+-(long long)percentCharge{
+  %log;
+  long long val = %orig;
+  HBLogDebug(@"It seems this is the battery level: %lli", val);
   return val;
 }
 %end
-
-//: This prints out the battery percentage of all devices. Will need to find out how to only get the airpod battery device.
-// %hook BCBatteryDevice
-// -(long long)percentCharge{
-//   %log;
-//   long long val = %orig;
-//   HBLogDebug(@"It seems this is the battery level: %lli", val);
-//   return val;
-// }
-// %end
+*/
 
 static void settingsChangedSiliqua(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo)
 {
