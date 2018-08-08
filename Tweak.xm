@@ -18,6 +18,10 @@
 - (unsigned)doubleTapActionEx:(unsigned*)arg1 rightAction:(unsigned*)arg2;
 @end
 
+@interface BluetoothManager : NSObject
+- (void)earbudInfo;
+@end
+
 @interface MPMusicPlayerController
 + (id)systemMusicPlayer;
 - (void)play;
@@ -212,6 +216,16 @@ static NSTimer *timer;
 //: MARK: - BluetoothManager 
 
 %hook BluetoothManager
+%new 
+-(void)earbudInfo {
+  	//: Lets find out which earbud called 
+  	// unsigned int result; 
+  	// result = [%c(BluetoothDevice) doubleTapActionEx];
+  	// HBLogDebug(@"RESULT IS: @u", result);
+	HBLogDebug(@"earbudInfo got called!!!");
+
+}
+
 //NOTE BOTH OF these methods this will not be called if LEFT and RIGHT are set to OFF but will be called if one earbud is set SIRI
 //: PRints ou similiar things to postNotificationArray but this includes the mac address
 -(void)postNotificationName:(id)arg1 object:(id)arg2 {
@@ -228,18 +242,21 @@ static NSTimer *timer;
   //%log;
 	if ([arg1 isKindOfClass:[NSString class]]) {
 		NSString *notificationName = (NSString *)arg1;
-		HBLogDebug(@"The notificationName is %@", notificationName);
+		//HBLogDebug(@"The notificationName is %@", notificationName);
 
 		if ( [notificationName isEqualToString: initiatedCommand] && !newCall ) {
 			currentCall = notificationName;
 			newCall = endedCommand;
 			HBLogDebug(@"The CURRENT CALL is now: %@", currentCall);
 			HBLogDebug(@"thE newCALL IS NOW %@", newCall);
+			[self earbudInfo];
 		} else if ([notificationName isEqualToString: endedCommand] && !newCall ) {
 			currentCall = notificationName;
 			newCall = initiatedCommand;
 			HBLogDebug(@"The CURRENT CALL is now: %@", currentCall);
 			HBLogDebug(@"thE newCALL IS NOW %@", newCall);
+			[self earbudInfo];
+
 		} else {
 			//: Added this part bc for some reason postNotificationName gets called many times.
 			if (newCall && [notificationName isEqualToString: currentCall]) {
@@ -247,16 +264,13 @@ static NSTimer *timer;
 			} else if (![notificationName isEqualToString: currentCall] && newCall) {
 				HBLogDebug(@"EPIC");
 				currentCall = notificationName;
+				[self earbudInfo];
 			}
 
 		}
 	}
-
-  //: Lets find out which earbud called 
-  // unsigned int result; 
-  // result = [%c(BluetoothDevice) doubleTapActionEx];
-  // HBLogDebug(@"RESULT IS: @u", result);
 }
+
 
 - (void)_postNotificationWithArray:(id)arg1 { 
   //: MARK:- THIS IS NOT BEING CALLED ANYMORE NOW ALL OF A SUDDEN. NOT SURE WHY.
