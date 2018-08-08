@@ -74,6 +74,9 @@ int count = 0;
 NSString *currentCall;
 NSString *newCall;
 
+unsigned int *leftEarPod;
+unsigned int *rightEarPod;
+
 
 @interface SBAssistantController
 + (id)sharedInstance;
@@ -90,129 +93,137 @@ static BOOL justTapped = NO;
 static NSTimer *timer;
 
 - (void)viewDidLoad {
-    %orig;
+	%orig;
     // Register for our double tap notification.
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(recivedDoubleTapNotificationFromAirPods:) name:@"com.laughingquoll.runairpodsdoubletappedaction" object:nil];
-    HBLogDebug(@"viewDidLoad has finished");
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(recivedDoubleTapNotificationFromAirPods:) name:@"com.laughingquoll.runairpodsdoubletappedaction" object:nil];
+	HBLogDebug(@"viewDidLoad has finished");
+	//[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(doubleTapActionSetting) name:@"com.lema.info" object:nil];
+
 }
+
+
+%new 
+// - (void)doubleTapActionSetting {
+// 	HBLogDebug(@"The leftEarPod is set to %u and the rightEarPod is set to %u", *leftEarPod, *rightEarPod);
+// }
 
 
 %new
 - (void)recivedDoubleTapNotificationFromAirPods:(NSNotification *)notification {
-    HBLogDebug(@"recivedDoubleTapNotificationFromAirPods METHOD CALLED");
+	HBLogDebug(@"recivedDoubleTapNotificationFromAirPods METHOD CALLED");
     // Firstly check that the notification is in fact the double tap action.
-    if ([[notification name] isEqualToString:@"com.laughingquoll.runairpodsdoubletappedaction"]) {
+	if ([[notification name] isEqualToString:@"com.laughingquoll.runairpodsdoubletappedaction"]) {
         // Credits to Finn Gaida who created quad tap for me :P
-        if (justTapped) {
+		if (justTapped) {
             // quad tap action
-            HBLogDebug(@"Quad tap ACTIVATED");
+			HBLogDebug(@"Quad tap ACTIVATED");
 
-            if(qtPausePlay){
-            MRMediaRemoteSendCommand(kMRTogglePlayPause, 0);
-            }
+			if(qtPausePlay){
+				MRMediaRemoteSendCommand(kMRTogglePlayPause, 0);
+			}
 
-            if(qtSkip){
-            MRMediaRemoteSendCommand(kMRNextTrack, 0);
-            }
+			if(qtSkip){
+				MRMediaRemoteSendCommand(kMRNextTrack, 0);
+			}
 
-            if(qtRewind){
-            MRMediaRemoteSendCommand(kMRPreviousTrack, 0);
-            }
+			if(qtRewind){
+				MRMediaRemoteSendCommand(kMRPreviousTrack, 0);
+			}
 
-            if(qtSkip15){
+			if(qtSkip15){
               // Both don't seem to work, looking for alternatives?
               // [[%c(SBMediaController) sharedInstance] skipFifteenSeconds:+15];
               // MRMediaRemoteSendCommand(kMRSkipFifteenSeconds, 0);
-              [[%c(SBMediaController) sharedInstance] _sendMediaCommand:17];
-            }
+				[[%c(SBMediaController) sharedInstance] _sendMediaCommand:17];
+			}
 
-            if(qtRewind15){
+			if(qtRewind15){
               // Both don't seem to work, looking for alternatives?
               // [[%c(SBMediaController) sharedInstance] skipFifteenSeconds:-15];
               // MRMediaRemoteSendCommand(kMRGoBackFifteenSeconds, 0);
-              [[%c(SBMediaController) sharedInstance] _sendMediaCommand:18];
-            }
+				[[%c(SBMediaController) sharedInstance] _sendMediaCommand:18];
+			}
 
-            if(qtIncreaseVolume){
-              HBLogDebug(@"INCREASE VOLUME ACTIVATED");
+			if(qtIncreaseVolume){
+				HBLogDebug(@"INCREASE VOLUME ACTIVATED");
 
-              [[%c(SBMediaController) sharedInstance] _changeVolumeBy:0.1];
-            }
+				[[%c(SBMediaController) sharedInstance] _changeVolumeBy:0.1];
+			}
 
-            if(qtDecreaseVolume){
-              HBLogDebug(@"DECREASE VOLUME ACTIVATED");
-              [[%c(SBMediaController) sharedInstance] _changeVolumeBy:-0.1];
-            }
+			if(qtDecreaseVolume){
+				HBLogDebug(@"DECREASE VOLUME ACTIVATED");
+				[[%c(SBMediaController) sharedInstance] _changeVolumeBy:-0.1];
+			}
 
-            if(qtToggleSiri){
-              SBAssistantController *assistantController = [%c(SBAssistantController) sharedInstance];
+			if(qtToggleSiri){
+				SBAssistantController *assistantController = [%c(SBAssistantController) sharedInstance];
 
-              if((int)[assistantController participantState] == 1){
-                [assistantController handleSiriButtonDownEventFromSource:1 activationEvent:1];
-                [assistantController handleSiriButtonUpEventFromSource:1];
-              } else {
-                [assistantController dismissAssistantView:1 forAlertActivation:nil];
-              }
-            }
+				if((int)[assistantController participantState] == 1){
+					[assistantController handleSiriButtonDownEventFromSource:1 activationEvent:1];
+					[assistantController handleSiriButtonUpEventFromSource:1];
+				} else {
+					[assistantController dismissAssistantView:1 forAlertActivation:nil];
+				}
+			}
 
-            [timer invalidate];
-            justTapped = NO;
-        } else {
-            HBLogDebug(@"Double tap ACTIVATED");
+			[timer invalidate];
+			justTapped = NO;
+		} else {
+			HBLogDebug(@"Double tap ACTIVATED");
 
-            justTapped = YES;
-            timer = [NSTimer scheduledTimerWithTimeInterval:1 repeats:NO block:^(NSTimer * _Nonnull timer) {
+			justTapped = YES;
+			timer = [NSTimer scheduledTimerWithTimeInterval:1 repeats:NO block:^(NSTimer * _Nonnull timer) {
 
-                if(dtPausePlay){
-                MRMediaRemoteSendCommand(kMRTogglePlayPause, 0);
-                }
+				if(dtPausePlay){
+					MRMediaRemoteSendCommand(kMRTogglePlayPause, 0);
+				}
 
-                if(dtSkip){
-                MRMediaRemoteSendCommand(kMRNextTrack, 0);
-                }
+				if(dtSkip){
+					MRMediaRemoteSendCommand(kMRNextTrack, 0);
+				}
 
-                if(dtRewind){
-                MRMediaRemoteSendCommand(kMRPreviousTrack, 0);
-                }
+				if(dtRewind){
+					MRMediaRemoteSendCommand(kMRPreviousTrack, 0);
+				}
 
-                if(dtSkip15){
+				if(dtSkip15){
                   // Both don't seem to work, looking for alternatives?
                   // [[%c(SBMediaController) sharedInstance] skipFifteenSeconds:+15];
                   // MRMediaRemoteSendCommand(kMRSkipFifteenSeconds, 0);
-                  [[%c(SBMediaController) sharedInstance] _sendMediaCommand:17];
-                }
+					[[%c(SBMediaController) sharedInstance] _sendMediaCommand:17];
+				}
 
-                if(dtRewind15){
+				if(dtRewind15){
                   // Both don't seem to work, looking for alternatives?
                   // [[%c(SBMediaController) sharedInstance] skipFifteenSeconds:-15];
                   // MRMediaRemoteSendCommand(kMRGoBackFifteenSeconds, 0);
-                  [[%c(SBMediaController) sharedInstance] _sendMediaCommand:18];
-                }
+					[[%c(SBMediaController) sharedInstance] _sendMediaCommand:18];
+				}
 
-                if(dtIncreaseVolume){
-                  [[%c(SBMediaController) sharedInstance] _changeVolumeBy:0.1];
-                }
+				if(dtIncreaseVolume){
+					[[%c(SBMediaController) sharedInstance] _changeVolumeBy:0.1];
+				}
 
-                if(dtDecreaseVolume){
-                  [[%c(SBMediaController) sharedInstance] _changeVolumeBy:-0.1];
-                }
+				if(dtDecreaseVolume){
+					[[%c(SBMediaController) sharedInstance] _changeVolumeBy:-0.1];
+				}
 
-                if(dtToggleSiri){
+				if(dtToggleSiri){
 
-                  SBAssistantController *assistantController = [%c(SBAssistantController) sharedInstance];
-                  if((int)[assistantController participantState] == 1){
-                    [assistantController handleSiriButtonDownEventFromSource:1 activationEvent:1];
-                    [assistantController handleSiriButtonUpEventFromSource:1];
-                  } else {
-                    [assistantController dismissAssistantView:1 forAlertActivation:nil];
-                  }
+					SBAssistantController *assistantController = [%c(SBAssistantController) sharedInstance];
+					if((int)[assistantController participantState] == 1){
+						[assistantController handleSiriButtonDownEventFromSource:1 activationEvent:1];
+						[assistantController handleSiriButtonUpEventFromSource:1];
+					} else {
+						[assistantController dismissAssistantView:1 forAlertActivation:nil];
+					}
 
-                }
+				}
 
-                justTapped = NO;
-            }];
-        }
-    }
+				justTapped = NO;
+			}];
+		}
+	}
 }
 %end
 
@@ -220,11 +231,9 @@ static NSTimer *timer;
 %hook BluetoothManager
 %new 
 -(void)earbudInfo {
-  	//: Lets find out which earbud called 
-  	// unsigned int result; 
-  	// result = [%c(BluetoothDevice) doubleTapActionEx];
-  	// HBLogDebug(@"RESULT IS: @u", result);
 	HBLogDebug(@"earbudInfo got called!!!");
+  	//: Lets find out which earbud called 
+
 
 }
 
@@ -242,7 +251,6 @@ static NSTimer *timer;
 	NSString *endedCommand = @"BluetoothHandsfreeEndedVoiceCommand";
 
   //%log;
-	//[[NSNotificationCenter defaultCenter] postNotificationName:@"com.laughingquoll.info" object:self];
 	if ([arg1 isKindOfClass:[NSString class]]) {
 		NSString *notificationName = (NSString *)arg1;
 		//HBLogDebug(@"The notificationName is %@", notificationName);
@@ -277,9 +285,9 @@ static NSTimer *timer;
 
 - (void)_postNotificationWithArray:(id)arg1 { 
   //: MARK:- THIS IS NOT BEING CALLED ANYMORE NOW ALL OF A SUDDEN. NOT SURE WHY.
-  %log;
-  HBLogDebug(@"YOU'VE SEEM TO CALL ME ALL OF A SUDDEN");
-  }
+	%log;
+	HBLogDebug(@"YOU'VE SEEM TO CALL ME ALL OF A SUDDEN");
+}
 %end
 
 
@@ -300,26 +308,33 @@ if arg1 ==
 arg2 == Right earbud
 */
 -(unsigned)doubleTapActionEx:(unsigned*)arg1 rightAction:(unsigned*)arg2 {
-  unsigned int val = %orig;
-  HBLogDebug(@"doubleTapActionEx RESULT %u", val);
-  unsigned int *argVal = arg1;
-  HBLogDebug(@"doubleTapActionEx ARGUEMENT1 %u", *argVal);
-  unsigned int *argVal2 = arg2;
-  HBLogDebug(@"doubleTapActionEx ARGUEMENT2 %u", *argVal2);
+	unsigned int val = %orig;
+	HBLogDebug(@"doubleTapActionEx RESULT %u", val);
+	unsigned int *argVal = arg1;
+	HBLogDebug(@"doubleTapActionEx ARGUEMENT1 %u", *argVal);
+	unsigned int *argVal2 = arg2;
+	HBLogDebug(@"doubleTapActionEx ARGUEMENT2 %u", *argVal2);
   //: Returns a value of 0 when viewing Airpods viewController
-  return val;
+
+
+	//: set the leftEarPod and rightEarPod
+	leftEarPod = arg1;
+	rightEarPod = arg2;
+  	//: TODO MAKE IT SO THAT SUPPORTSBATTERYLVEVEL WILL ONLY CALL ONCE. ALSO later implement a notifcation for when setdoubletapaction is changed.
+	//[[NSNotificationCenter defaultCenter] postNotificationName:@"com.lema.info" object:self];
+	return val;
 }
 
 //: HOLY grail, this is called when user selects a new option (such as Play/Pause)
 -(BOOL)setDoubleTapActionEx:(unsigned)arg1 rightAction:(unsigned)arg2 {
-  BOOL val = %orig;
-  HBLogDebug(@"setDoubleTapActionEx RESULT %d", val);
-  unsigned int argVal = arg1;
-  HBLogDebug(@"setDoubleTapActionEx ARGUEMENT1 %u", argVal);
-  unsigned int argVal2 = arg2;
-  HBLogDebug(@"setDoubleTapActionEx ARGUEMENT2 %u", argVal2);
+	BOOL val = %orig;
+	HBLogDebug(@"setDoubleTapActionEx RESULT %d", val);
+	unsigned int argVal = arg1;
+	HBLogDebug(@"setDoubleTapActionEx ARGUMENT1 %u", argVal);
+	unsigned int argVal2 = arg2;
+	HBLogDebug(@"setDoubleTapActionEx ARGUMENT2 %u", argVal2);
   //: Returns a one when a value is set
-  return val;
+	return val;
 }
 
 //: This is called when user opens cc or when user puts on/off airpods
@@ -336,6 +351,7 @@ arg2 == Right earbud
 
 	HBLogDebug(@"supportsBatteryLevel called");
 	[self doubleTapActionEx:&first rightAction:&second];
+
 	BOOL val = %orig;
 	return val;
 }
@@ -355,35 +371,35 @@ arg2 == Right earbud
 
 static void settingsChangedSiliqua(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo)
 {
-    @autoreleasepool {
-        NSDictionary *SiliquaPrefs = [[[NSDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.laughingquoll.siliquaprefs.plist"]?:[NSDictionary dictionary] copy];
-        Enabled = (BOOL)[[SiliquaPrefs objectForKey:@"enabled"]?:@YES boolValue];
+	@autoreleasepool {
+		NSDictionary *SiliquaPrefs = [[[NSDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.laughingquoll.siliquaprefs.plist"]?:[NSDictionary dictionary] copy];
+		Enabled = (BOOL)[[SiliquaPrefs objectForKey:@"enabled"]?:@YES boolValue];
 
         // Our Double Tap Preferences
-        dtPausePlay = (BOOL)[[SiliquaPrefs objectForKey:@"dtPausePlay"]?:@NO boolValue];
-        dtSkip = (BOOL)[[SiliquaPrefs objectForKey:@"dtSkip"]?:@NO boolValue];
-        dtRewind = (BOOL)[[SiliquaPrefs objectForKey:@"dtRewind"]?:@NO boolValue];
-        dtSkip15 = (BOOL)[[SiliquaPrefs objectForKey:@"dtSkip15"]?:@NO boolValue];
-        dtRewind15 = (BOOL)[[SiliquaPrefs objectForKey:@"dtRewind15"]?:@NO boolValue];
-        dtIncreaseVolume = (BOOL)[[SiliquaPrefs objectForKey:@"dtIncreaseVolume"]?:@NO boolValue];
-        dtDecreaseVolume = (BOOL)[[SiliquaPrefs objectForKey:@"dtDecreaseVolume"]?:@NO boolValue];
-        dtToggleSiri = (BOOL)[[SiliquaPrefs objectForKey:@"dtToggleSiri"]?:@NO boolValue];
+		dtPausePlay = (BOOL)[[SiliquaPrefs objectForKey:@"dtPausePlay"]?:@NO boolValue];
+		dtSkip = (BOOL)[[SiliquaPrefs objectForKey:@"dtSkip"]?:@NO boolValue];
+		dtRewind = (BOOL)[[SiliquaPrefs objectForKey:@"dtRewind"]?:@NO boolValue];
+		dtSkip15 = (BOOL)[[SiliquaPrefs objectForKey:@"dtSkip15"]?:@NO boolValue];
+		dtRewind15 = (BOOL)[[SiliquaPrefs objectForKey:@"dtRewind15"]?:@NO boolValue];
+		dtIncreaseVolume = (BOOL)[[SiliquaPrefs objectForKey:@"dtIncreaseVolume"]?:@NO boolValue];
+		dtDecreaseVolume = (BOOL)[[SiliquaPrefs objectForKey:@"dtDecreaseVolume"]?:@NO boolValue];
+		dtToggleSiri = (BOOL)[[SiliquaPrefs objectForKey:@"dtToggleSiri"]?:@NO boolValue];
 
         // Our Quad Tap Preferences
-        qtPausePlay = (BOOL)[[SiliquaPrefs objectForKey:@"qtPausePlay"]?:@NO boolValue];
-        qtSkip = (BOOL)[[SiliquaPrefs objectForKey:@"qtSkip"]?:@NO boolValue];
-        qtRewind = (BOOL)[[SiliquaPrefs objectForKey:@"qtRewind"]?:@NO boolValue];
-        qtSkip15 = (BOOL)[[SiliquaPrefs objectForKey:@"qtSkip15"]?:@NO boolValue];
-        qtRewind15 = (BOOL)[[SiliquaPrefs objectForKey:@"qtRewind15"]?:@NO boolValue];
-        qtIncreaseVolume = (BOOL)[[SiliquaPrefs objectForKey:@"qtIncreaseVolume"]?:@NO boolValue];
-        qtDecreaseVolume = (BOOL)[[SiliquaPrefs objectForKey:@"qtDecreaseVolume"]?:@NO boolValue];
-        qtToggleSiri = (BOOL)[[SiliquaPrefs objectForKey:@"qtToggleSiri"]?:@NO boolValue];
-    }
+		qtPausePlay = (BOOL)[[SiliquaPrefs objectForKey:@"qtPausePlay"]?:@NO boolValue];
+		qtSkip = (BOOL)[[SiliquaPrefs objectForKey:@"qtSkip"]?:@NO boolValue];
+		qtRewind = (BOOL)[[SiliquaPrefs objectForKey:@"qtRewind"]?:@NO boolValue];
+		qtSkip15 = (BOOL)[[SiliquaPrefs objectForKey:@"qtSkip15"]?:@NO boolValue];
+		qtRewind15 = (BOOL)[[SiliquaPrefs objectForKey:@"qtRewind15"]?:@NO boolValue];
+		qtIncreaseVolume = (BOOL)[[SiliquaPrefs objectForKey:@"qtIncreaseVolume"]?:@NO boolValue];
+		qtDecreaseVolume = (BOOL)[[SiliquaPrefs objectForKey:@"qtDecreaseVolume"]?:@NO boolValue];
+		qtToggleSiri = (BOOL)[[SiliquaPrefs objectForKey:@"qtToggleSiri"]?:@NO boolValue];
+	}
 }
 __attribute__((constructor)) static void initialize_Siliqua()
 {
-    @autoreleasepool {
-        CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, settingsChangedSiliqua, CFSTR("com.laughingquoll.SiliquaPrefs/changed"), NULL, CFNotificationSuspensionBehaviorCoalesce);
-        settingsChangedSiliqua(NULL, NULL, NULL, NULL, NULL);
-    }
+	@autoreleasepool {
+		CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, settingsChangedSiliqua, CFSTR("com.laughingquoll.SiliquaPrefs/changed"), NULL, CFNotificationSuspensionBehaviorCoalesce);
+		settingsChangedSiliqua(NULL, NULL, NULL, NULL, NULL);
+	}
 }
