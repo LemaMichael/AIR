@@ -321,21 +321,21 @@ arg2 == Right earbud
   //: Returns a one when a value is set
   return val;
 }
--(void)setServiceSetting:(unsigned)arg1 key:(id)arg2 value:(id)arg3 {
-	%log;
-	HBLogDebug(@"hmmmmmmmm.....");
-}
 
 //: This is called when user opens cc or when user puts on/off airpods
--(BOOL)isAppleAudioDevice{
-  BOOL val = %orig;
-  HBLogDebug(@"THIS IS BEING SHOWN AS an apple deivce connected? %d", val);
-  return %orig;
-}
+// -(BOOL)isAppleAudioDevice{
+//   BOOL val = %orig;
+//   HBLogDebug(@"THIS IS BEING SHOWN AS an apple deivce connected? %d", val);
+//   return %orig;
+// }
 
 //: This gets called immediately when the device resprings
 -(BOOL)supportsBatteryLevel {
+	unsigned int first = 100000000;
+	unsigned int second = 25;
+
 	HBLogDebug(@"supportsBatteryLevel called");
+	[self doubleTapActionEx:&first rightAction:&second];
 	BOOL val = %orig;
 	return val;
 }
