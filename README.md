@@ -22,7 +22,7 @@ Make sure to respring device if **DOUBLE-TAP ON AIRPOD** is changed.
 
 
 ## Issues
-Sometimes when an airpod is double tapped the other airpod with double/quadruple actions is called. Simply triple/quadruple tap the default airpod after tapping the custom airpod.
+Sometimes when an airpod is double tapped the other airpod with double/quadruple actions is called. Simply triple/quadruple tap the airpod after tapping the custom airpod.
 
 ## Licence
 **Originally created by [@LaughingQuoll](https://twitter.com/LaughingQuoll?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor)**
