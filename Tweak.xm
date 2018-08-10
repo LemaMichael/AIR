@@ -74,8 +74,8 @@ int count = 0;
 NSString *currentCall;
 NSString *newCall;
 
-unsigned int *leftEarPod;
-unsigned int *rightEarPod;
+static unsigned int leftEarPod;
+static unsigned int rightEarPod;
 
 
 @interface SBAssistantController
@@ -102,7 +102,7 @@ static NSTimer *timer;
 }
 
 
-%new 
+// %new 
 // - (void)doubleTapActionSetting {
 // 	HBLogDebug(@"The leftEarPod is set to %u and the rightEarPod is set to %u", *leftEarPod, *rightEarPod);
 // }
@@ -232,9 +232,16 @@ static NSTimer *timer;
 %new 
 -(void)earbudInfo {
 	HBLogDebug(@"earbudInfo got called!!!");
-  	//: Lets find out which earbud called 
+	HBLogDebug(@"The leftEarPod is %u and the rightEarPod is %u", leftEarPod, rightEarPod);
 
-
+  	//: Lets find out which earbud called, this will be the one that is set to SIRI
+  	if (leftEarPod == (unsigned int)1 & rightEarPod == (unsigned int)1) {
+  		//: Default action, this must be an ios 10 User perhaps?
+  	} else if (leftEarPod == (unsigned int)1) {
+  		HBLogDebug(@"leftEarPod was the one tapped");
+  	} else if (rightEarPod == (unsigned int)1) {
+  		HBLogDebug(@"rightEarPod was the one tapped");
+  	}
 }
 
 //NOTE BOTH OF these methods this will not be called if LEFT and RIGHT are set to OFF but will be called if one earbud is set SIRI
@@ -250,7 +257,7 @@ static NSTimer *timer;
 	NSString *initiatedCommand = @"BluetoothHandsfreeInitiatedVoiceCommand";
 	NSString *endedCommand = @"BluetoothHandsfreeEndedVoiceCommand";
 
-  //%log;
+	//%log;
 	if ([arg1 isKindOfClass:[NSString class]]) {
 		NSString *notificationName = (NSString *)arg1;
 		//HBLogDebug(@"The notificationName is %@", notificationName);
@@ -273,6 +280,7 @@ static NSTimer *timer;
 			if (newCall && [notificationName isEqualToString: currentCall]) {
 				return;
 			} else if (![notificationName isEqualToString: currentCall] && newCall) {
+				//: BUG: This gets called twice when in settings->bluetooth->airpod info view.
 				HBLogDebug(@"EPIC");
 				currentCall = notificationName;
 				[self earbudInfo];
@@ -316,10 +324,9 @@ arg2 == Right earbud
 	HBLogDebug(@"doubleTapActionEx ARGUEMENT2 %u", *argVal2);
   //: Returns a value of 0 when viewing Airpods viewController
 
-
 	//: set the leftEarPod and rightEarPod
-	leftEarPod = arg1;
-	rightEarPod = arg2;
+	leftEarPod = *argVal;
+	rightEarPod = *argVal2;
   	//: TODO MAKE IT SO THAT SUPPORTSBATTERYLVEVEL WILL ONLY CALL ONCE. ALSO later implement a notifcation for when setdoubletapaction is changed.
 	//[[NSNotificationCenter defaultCenter] postNotificationName:@"com.lema.info" object:self];
 	return val;
@@ -333,6 +340,9 @@ arg2 == Right earbud
 	HBLogDebug(@"setDoubleTapActionEx ARGUMENT1 %u", argVal);
 	unsigned int argVal2 = arg2;
 	HBLogDebug(@"setDoubleTapActionEx ARGUMENT2 %u", argVal2);
+
+	leftEarPod = argVal;
+	rightEarPod = argVal2;
   //: Returns a one when a value is set
 	return val;
 }
