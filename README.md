@@ -23,6 +23,12 @@ Set multiple actions for a double tap and quadruple tap.
 
 * ToggleSiri.
 
+<p align="center">
+ <img src = "/Screenshots/AIRsettings.jpg" height = "475" >  <img src = "/Screenshots/AIRdoubleTap.jpg" height = "475" >  <img src = "/Screenshots/AIRquadTap.jpg" height = "475" >
+</p>
+
+
+
 ## Licence
 **Originally created by [@LaughingQuoll](https://twitter.com/LaughingQuoll?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor)**
 
