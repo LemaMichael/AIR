@@ -22,7 +22,8 @@
 @interface BluetoothManager : NSObject
 - (void)earbudInfo;
 + (id)sharedInstance;
-
+- (void)receivedDoubleTapFromAirpods;
+-(void)postNotificationName:(id)arg1 object:(id)arg2;
 @end
 
 @interface MPMusicPlayerController
@@ -95,153 +96,123 @@ static NSTimer *timer;
 - (void)viewDidLoad {
 	%orig;
     // Register for our double tap notification.
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(recivedDoubleTapNotificationFromAirPods:) name:@"com.laughingquoll.runairpodsdoubletappedaction" object:nil];
 	HBLogDebug(@"viewDidLoad has finished");
-	//[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(doubleTapActionSetting) name:@"com.lema.info" object:nil];
-
 }
+%end
 
-
-// %new 
-// - (void)doubleTapActionSetting {
-// 	HBLogDebug(@"The leftEarPod is set to %u and the rightEarPod is set to %u", *leftEarPod, *rightEarPod);
-// }
-
-
+//: MARK: - BluetoothManager 
+%hook BluetoothManager
 %new
-- (void)recivedDoubleTapNotificationFromAirPods:(NSNotification *)notification {
-	HBLogDebug(@"recivedDoubleTapNotificationFromAirPods METHOD CALLED");
-    // Firstly check that the notification is in fact the double tap action.
-	if ([[notification name] isEqualToString:@"com.laughingquoll.runairpodsdoubletappedaction"]) {
+-(void)receivedDoubleTapFromAirpods {
         // Credits to Finn Gaida who created quad tap for me :P
-		if (justTapped) {
+	if (justTapped) {
             // quad tap action
-			HBLogDebug(@"Quad tap ACTIVATED");
+		HBLogDebug(@"Quad tap ACTIVATED");
 
-			if(qtPausePlay){
-				MRMediaRemoteSendCommand(kMRTogglePlayPause, 0);
-			}
+		if(qtPausePlay){
+			MRMediaRemoteSendCommand(kMRTogglePlayPause, 0);
+		}
 
-			if(qtSkip){
-				MRMediaRemoteSendCommand(kMRNextTrack, 0);
-			}
+		if(qtSkip){
+			MRMediaRemoteSendCommand(kMRNextTrack, 0);
+		}
 
-			if(qtRewind){
-				MRMediaRemoteSendCommand(kMRPreviousTrack, 0);
-			}
+		if(qtRewind){
+			MRMediaRemoteSendCommand(kMRPreviousTrack, 0);
+		}
 
-			if(qtSkip15){
+		if(qtSkip15){
               // Both don't seem to work, looking for alternatives?
               // [[%c(SBMediaController) sharedInstance] skipFifteenSeconds:+15];
               // MRMediaRemoteSendCommand(kMRSkipFifteenSeconds, 0);
-				[[%c(SBMediaController) sharedInstance] _sendMediaCommand:17];
-			}
+			[[%c(SBMediaController) sharedInstance] _sendMediaCommand:17];
+		}
 
-			if(qtRewind15){
+		if(qtRewind15){
               // Both don't seem to work, looking for alternatives?
               // [[%c(SBMediaController) sharedInstance] skipFifteenSeconds:-15];
               // MRMediaRemoteSendCommand(kMRGoBackFifteenSeconds, 0);
+			[[%c(SBMediaController) sharedInstance] _sendMediaCommand:18];
+		}
+
+		if(qtIncreaseVolume){
+			HBLogDebug(@"INCREASE VOLUME ACTIVATED");
+
+			[[%c(SBMediaController) sharedInstance] _changeVolumeBy:0.1];
+		}
+
+		if(qtDecreaseVolume){
+			HBLogDebug(@"DECREASE VOLUME ACTIVATED");
+			[[%c(SBMediaController) sharedInstance] _changeVolumeBy:-0.1];
+		}
+
+		if(qtToggleSiri){
+			SBAssistantController *assistantController = [%c(SBAssistantController) sharedInstance];
+
+			if((int)[assistantController participantState] == 1){
+				[assistantController handleSiriButtonDownEventFromSource:1 activationEvent:1];
+				[assistantController handleSiriButtonUpEventFromSource:1];
+			} else {
+				[assistantController dismissAssistantView:1 forAlertActivation:nil];
+			}
+		}
+
+		[timer invalidate];
+		justTapped = NO;
+	} else {
+		HBLogDebug(@"Double tap ACTIVATED");
+
+		justTapped = YES;
+		timer = [NSTimer scheduledTimerWithTimeInterval:1 repeats:NO block:^(NSTimer * _Nonnull timer) {
+
+			if(dtPausePlay){
+				MRMediaRemoteSendCommand(kMRTogglePlayPause, 0);
+			}
+
+			if(dtSkip){
+				MRMediaRemoteSendCommand(kMRNextTrack, 0);
+			}
+
+			if(dtRewind){
+				MRMediaRemoteSendCommand(kMRPreviousTrack, 0);
+			}
+
+			if(dtSkip15){
+                  // Both don't seem to work, looking for alternatives?
+                  // [[%c(SBMediaController) sharedInstance] skipFifteenSeconds:+15];
+                  // MRMediaRemoteSendCommand(kMRSkipFifteenSeconds, 0);
+				[[%c(SBMediaController) sharedInstance] _sendMediaCommand:17];
+			}
+
+			if(dtRewind15){
+                  // Both don't seem to work, looking for alternatives?
+                  // [[%c(SBMediaController) sharedInstance] skipFifteenSeconds:-15];
+                  // MRMediaRemoteSendCommand(kMRGoBackFifteenSeconds, 0);
 				[[%c(SBMediaController) sharedInstance] _sendMediaCommand:18];
 			}
 
-			if(qtIncreaseVolume){
-				HBLogDebug(@"INCREASE VOLUME ACTIVATED");
-
+			if(dtIncreaseVolume){
 				[[%c(SBMediaController) sharedInstance] _changeVolumeBy:0.1];
 			}
 
-			if(qtDecreaseVolume){
-				HBLogDebug(@"DECREASE VOLUME ACTIVATED");
+			if(dtDecreaseVolume){
 				[[%c(SBMediaController) sharedInstance] _changeVolumeBy:-0.1];
 			}
 
-			if(qtToggleSiri){
-				SBAssistantController *assistantController = [%c(SBAssistantController) sharedInstance];
+			if(dtToggleSiri){
 
+				SBAssistantController *assistantController = [%c(SBAssistantController) sharedInstance];
 				if((int)[assistantController participantState] == 1){
 					[assistantController handleSiriButtonDownEventFromSource:1 activationEvent:1];
 					[assistantController handleSiriButtonUpEventFromSource:1];
 				} else {
 					[assistantController dismissAssistantView:1 forAlertActivation:nil];
 				}
+
 			}
-
-			[timer invalidate];
 			justTapped = NO;
-		} else {
-			HBLogDebug(@"Double tap ACTIVATED");
-
-			justTapped = YES;
-			timer = [NSTimer scheduledTimerWithTimeInterval:1 repeats:NO block:^(NSTimer * _Nonnull timer) {
-
-				if(dtPausePlay){
-					MRMediaRemoteSendCommand(kMRTogglePlayPause, 0);
-				}
-
-				if(dtSkip){
-					MRMediaRemoteSendCommand(kMRNextTrack, 0);
-				}
-
-				if(dtRewind){
-					MRMediaRemoteSendCommand(kMRPreviousTrack, 0);
-				}
-
-				if(dtSkip15){
-                  // Both don't seem to work, looking for alternatives?
-                  // [[%c(SBMediaController) sharedInstance] skipFifteenSeconds:+15];
-                  // MRMediaRemoteSendCommand(kMRSkipFifteenSeconds, 0);
-					[[%c(SBMediaController) sharedInstance] _sendMediaCommand:17];
-				}
-
-				if(dtRewind15){
-                  // Both don't seem to work, looking for alternatives?
-                  // [[%c(SBMediaController) sharedInstance] skipFifteenSeconds:-15];
-                  // MRMediaRemoteSendCommand(kMRGoBackFifteenSeconds, 0);
-					[[%c(SBMediaController) sharedInstance] _sendMediaCommand:18];
-				}
-
-				if(dtIncreaseVolume){
-					[[%c(SBMediaController) sharedInstance] _changeVolumeBy:0.1];
-				}
-
-				if(dtDecreaseVolume){
-					[[%c(SBMediaController) sharedInstance] _changeVolumeBy:-0.1];
-				}
-
-				if(dtToggleSiri){
-
-					SBAssistantController *assistantController = [%c(SBAssistantController) sharedInstance];
-					if((int)[assistantController participantState] == 1){
-						[assistantController handleSiriButtonDownEventFromSource:1 activationEvent:1];
-						[assistantController handleSiriButtonUpEventFromSource:1];
-					} else {
-						[assistantController dismissAssistantView:1 forAlertActivation:nil];
-					}
-
-				}
-
-				justTapped = NO;
-			}];
-		}
+		}];
 	}
-}
-%end
-
-//: MARK: - BluetoothManager 
-%hook BluetoothManager
-%new 
--(void)earbudInfo {
-	HBLogDebug(@"earbudInfo got called!!!");
-	HBLogDebug(@"The leftEarPod is %u and the rightEarPod is %u", leftEarPod, rightEarPod);
-
-  	//: Lets find out which earbud called, this will be the one that is set to SIRI
-  	if (leftEarPod == (unsigned int)1 & rightEarPod == (unsigned int)1) {
-  		//: Default action, this must be an ios 10 User perhaps?
-  	} else if (leftEarPod == (unsigned int)1) {
-  		HBLogDebug(@"leftEarPod was the one tapped");
-  	} else if (rightEarPod == (unsigned int)1) {
-  		HBLogDebug(@"rightEarPod was the one tapped");
-  	}
 }
 
 //NOTE BOTH OF these methods this will not be called if LEFT and RIGHT are set to OFF but will be called if one earbud is set SIRI
@@ -257,39 +228,56 @@ static NSTimer *timer;
 	NSString *initiatedCommand = @"BluetoothHandsfreeInitiatedVoiceCommand";
 	NSString *endedCommand = @"BluetoothHandsfreeEndedVoiceCommand";
 
-	//%log;
-	if ([arg1 isKindOfClass:[NSString class]]) {
-		NSString *notificationName = (NSString *)arg1;
-		//HBLogDebug(@"The notificationName is %@", notificationName);
-
-		if ( [notificationName isEqualToString: initiatedCommand] && !newCall ) {
-			currentCall = notificationName;
-			newCall = endedCommand;
-			HBLogDebug(@"The CURRENT CALL is now: %@", currentCall);
-			HBLogDebug(@"thE newCALL IS NOW %@", newCall);
-			[self earbudInfo];
-		} else if ([notificationName isEqualToString: endedCommand] && !newCall ) {
-			currentCall = notificationName;
-			newCall = initiatedCommand;
-			HBLogDebug(@"The CURRENT CALL is now: %@", currentCall);
-			HBLogDebug(@"thE newCALL IS NOW %@", newCall);
-			[self earbudInfo];
-
-		} else {
-			//: Added this part bc for some reason postNotificationName gets called many times.
-			if (newCall && [notificationName isEqualToString: currentCall]) {
-				return;
-			} else if (![notificationName isEqualToString: currentCall] && newCall) {
-				//: BUG: This gets called twice when in settings->bluetooth->airpod info view.
-				HBLogDebug(@"EPIC");
+	if (Enabled) {
+		//%log;
+		if ([arg1 isKindOfClass:[NSString class]]) {
+			NSString *notificationName = (NSString *)arg1;
+			//HBLogDebug(@"The notificationName is %@", notificationName);
+			if ( [notificationName isEqualToString: initiatedCommand] && !newCall ) {
 				currentCall = notificationName;
+				newCall = endedCommand;
+				HBLogDebug(@"The CURRENT CALL is now: %@", currentCall);
+				HBLogDebug(@"thE newCALL IS NOW %@", newCall);
 				[self earbudInfo];
-			}
+			} else if ([notificationName isEqualToString: endedCommand] && !newCall ) {
+				currentCall = notificationName;
+				newCall = initiatedCommand;
+				HBLogDebug(@"The CURRENT CALL is now: %@", currentCall);
+				HBLogDebug(@"thE newCALL IS NOW %@", newCall);
+				[self earbudInfo];
 
+			} else {
+			//: Added this part bc for some reason postNotificationName gets called many times.
+				if (newCall && [notificationName isEqualToString: currentCall]) {
+					 return;
+				} else if (![notificationName isEqualToString: currentCall] && newCall) {
+				//: BUG: This gets called twice when in settings->bluetooth->airpod info view.
+					HBLogDebug(@"EPIC");
+					currentCall = notificationName;
+					[self earbudInfo];
+				}
+			}
 		}
+	} else {
+		return %orig;
 	}
 }
-
+%new 
+-(void)earbudInfo {
+	HBLogDebug(@"earbudInfo got called!!!");
+	HBLogDebug(@"The leftEarPod is %u and the rightEarPod is %u", leftEarPod, rightEarPod);
+  	//: Lets find out which earbud called, this will be the one that is set to SIRI
+  	if (leftEarPod == (unsigned int)1 & rightEarPod == (unsigned int)1) {
+  		//: Default action, this must be an ios 10 User perhaps?
+  		HBLogDebug(@"ARE YOU AN IOS 10 USER?");
+  	} else if (leftEarPod == (unsigned int)1) {
+  		HBLogDebug(@"leftEarPod was the one tapped");
+  		[self receivedDoubleTapFromAirpods];
+  	} else if (rightEarPod == (unsigned int)1) {
+  		HBLogDebug(@"rightEarPod was the one tapped");
+  		[self receivedDoubleTapFromAirpods];
+  	}
+}
 
 - (void)_postNotificationWithArray:(id)arg1 { 
   //: MARK:- THIS IS NOT BEING CALLED ANYMORE NOW ALL OF A SUDDEN. NOT SURE WHY.
@@ -300,9 +288,7 @@ static NSTimer *timer;
 
 
 //: MARK: - BluetoothDevice 
-
 %hook BluetoothDevice
-
 //: Prints out the current doubleTapactions
 /*
 arg1 == Left earbud
@@ -328,7 +314,6 @@ arg2 == Right earbud
 	leftEarPod = *argVal;
 	rightEarPod = *argVal2;
   	//: TODO MAKE IT SO THAT SUPPORTSBATTERYLVEVEL WILL ONLY CALL ONCE. ALSO later implement a notifcation for when setdoubletapaction is changed.
-	//[[NSNotificationCenter defaultCenter] postNotificationName:@"com.lema.info" object:self];
 	return val;
 }
 
