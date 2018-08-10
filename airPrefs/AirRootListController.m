@@ -80,7 +80,7 @@
 		//: Thanks LaughingQuoll
 		other1Label = [[UILabel alloc] initWithFrame:other1Frame];
 		[other1Label setNumberOfLines:1];
-		other1Label.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:12];
+		other1Label.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:13];
         [other1Label setText:@"Modified by Lema"];
 		[other1Label setBackgroundColor:[UIColor clearColor]];
 		other1Label.textColor = [UIColor grayColor];

@@ -32,36 +32,29 @@
 		<key>cell</key>
 		<string>PSGroupCell</string>
 		<key>label</key>
-		<string></string>
+		<string>Airpod Controls</string>
 	</dict>
-	<dict>
-			<key>cell</key>
-			<string>PSLinkCell</string>
-			<key>detail</key>
-			<string>DoubleTapListController</string>
-			<key>label</key>
-			<string>Double Tap Actions</string>
-	</dict>
-
 	<dict>
 		<key>cell</key>
-		<string>PSGroupCell</string>
+		<string>PSLinkCell</string>
+		<key>detail</key>
+		<string>DoubleTapListController</string>
 		<key>label</key>
-		<string></string>
+		<string>Double Tap Actions</string>
 	</dict>
 	<dict>
-			<key>cell</key>
-			<string>PSLinkCell</string>
-			<key>detail</key>
-			<string>QuadTapListController</string>
-			<key>label</key>
-			<string>Quadruple Tap Actions</string>
+		<key>cell</key>
+		<string>PSLinkCell</string>
+		<key>detail</key>
+		<string>QuadTapListController</string>
+		<key>label</key>
+		<string>Quadruple Tap Actions</string>
 	</dict>
 	<dict>
 		<key>cell</key>
 		<string>PSGroupCell</string>
 		<key>label</key>
-		<string>About the creator</string>
+		<string>About the creators</string>
 	</dict>
 	<dict>
 		<key>cell</key>
@@ -72,12 +65,6 @@
 		<string>Original source code</string>
 		<key>icon</key>
 		<string>github.png</string>
-	</dict>
-	<dict>
-		<key>cell</key>
-		<string>PSGroupCell</string>
-		<key>label</key>
-		<string>About Me</string>
 	</dict>
 	<dict>
 		<key>cell</key>
