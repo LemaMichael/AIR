@@ -1,9 +1,10 @@
 # Airpods ++
 
-Add more actions to your AirPods.
+Add more actions to your AirPods!
 
 Set multiple actions for a double tap and quadruple tap.
 
+**Supports iOS 11**
 ## Actions
 
 * Pause/Play.
