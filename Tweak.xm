@@ -125,6 +125,7 @@ static NSTimer *timer;
               // Both don't seem to work, looking for alternatives?
               // [[%c(SBMediaController) sharedInstance] skipFifteenSeconds:+15];
               // MRMediaRemoteSendCommand(kMRSkipFifteenSeconds, 0);
+			//: Does not work ON ios 11?
 			[[%c(SBMediaController) sharedInstance] _sendMediaCommand:17];
 		}
 
@@ -132,6 +133,7 @@ static NSTimer *timer;
               // Both don't seem to work, looking for alternatives?
               // [[%c(SBMediaController) sharedInstance] skipFifteenSeconds:-15];
               // MRMediaRemoteSendCommand(kMRGoBackFifteenSeconds, 0);
+			//: Does not work ON ios 11?
 			[[%c(SBMediaController) sharedInstance] _sendMediaCommand:18];
 		}
 
@@ -267,9 +269,11 @@ static NSTimer *timer;
 	HBLogDebug(@"earbudInfo got called!!!");
 	HBLogDebug(@"The leftEarPod is %u and the rightEarPod is %u", leftEarPod, rightEarPod);
   	//: Lets find out which earbud called, this will be the one that is set to SIRI
-  	if (leftEarPod == (unsigned int)1 & rightEarPod == (unsigned int)1) {
+
+  	if (leftEarPod == (unsigned int)0 && rightEarPod == (unsigned int)0) {
   		//: Default action, this must be an ios 10 User perhaps?
-  		HBLogDebug(@"ARE YOU AN IOS 10 USER?");
+  		[self receivedDoubleTapFromAirpods];
+  		HBLogDebug(@"IOS 10 USER or below");
   	} else if (leftEarPod == (unsigned int)1) {
   		HBLogDebug(@"leftEarPod was the one tapped");
   		[self receivedDoubleTapFromAirpods];
@@ -341,12 +345,16 @@ arg2 == Right earbud
 
 //: This gets called immediately when the device resprings
 -(BOOL)supportsBatteryLevel {
-	unsigned int first = 100000000;
-	unsigned int second = 25;
 
-	HBLogDebug(@"supportsBatteryLevel called");
-	[self doubleTapActionEx:&first rightAction:&second];
-
+	//: This will ONLY support IOS 11
+	NSOperatingSystemVersion ios11 = (NSOperatingSystemVersion){11, 0, 0};
+	if ([[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:ios11]) {
+		HBLogDebug(@"supportsBatteryLevel called! HELLO IOS 11 USER!");
+		//: The following values don't have to be set to get the results we want.
+		unsigned int first = 100000000;
+		unsigned int second = 25;
+		[self doubleTapActionEx:&first rightAction:&second];
+	} 
 	BOOL val = %orig;
 	return val;
 }
