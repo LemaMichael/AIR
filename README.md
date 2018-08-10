@@ -1,8 +1,8 @@
 # Airpods ++
 
-Add a multiude of new actions to your AirPods.
+Add more actions to your AirPods.
 
-Set multiple actions for a double tap and a quad tap.
+Set multiple actions for a double tap and quadruple tap.
 
 ## Actions
 
